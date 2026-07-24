@@ -1,2 +1,8 @@
+packages:
+  - "packages/*"
+
 allowBuilds:
-  '@schpet/linear-cli': false
+  "@schpet/linear-cli": false
+  esbuild: true
+  sharp: true
+  workerd: true
