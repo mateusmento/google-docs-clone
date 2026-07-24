@@ -1,0 +1,24 @@
+{
+  "name": "google-docs-clone",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.17.0",
+      "onFail": "download"
+    }
+  },
+  "type": "module",
+  "devDependencies": {
+    "@schpet/linear-cli": "^2.3.0"
+  },
+  "packageManager": "pnpm@9.0.1+sha512.f904b133d699415b0d997ee3f05a269affbdb02cf6b227fa03d85483a8f3dfced0b9160a7d477dc051ab67af8be44705b9fdf15f2ae33bc83b76886529fb4b1d"
+}
