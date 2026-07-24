@@ -1,0 +1,16 @@
+name = "google-docs-clone-server"
+main = "src/index.ts"
+compatibility_date = "2025-01-15"
+
+[d1_databases]
+binding = "DB"
+database_name = "google-docs-clone-db"
+database_id = "placeholder"
+
+[[durable_objects.bindings]]
+name = "DOCUMENT_COLLABORATION"
+class_name = "DocumentCollaboration"
+
+[durable_objects.migrations]
+tag = "v1"
+new_classes = ["DocumentCollaboration"]
