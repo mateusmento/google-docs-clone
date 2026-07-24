@@ -6,14 +6,19 @@
   "scripts": {
     "dev": "wrangler dev",
     "build": "wrangler deploy --dry-run --outdir=dist",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "wrangler d1 migrations apply google-docs-clone-db",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@google-docs-clone/types": "workspace:*",
+    "drizzle-orm": "^0.45.2",
     "hono": "^4.7.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250115.0",
+    "drizzle-kit": "^0.31.10",
     "typescript": "^5.7.0",
     "wrangler": "^3.105.0"
   }
