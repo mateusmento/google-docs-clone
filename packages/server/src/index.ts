@@ -2,6 +2,9 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { createDb } from "./db";
 import { createAuth, type Auth } from "./auth";
+import { createDocumentsModule, type DocumentsModule } from "./documents";
+import { createSharesModule, type SharesModule } from "./shares";
+import { errorHandler } from "./middleware/error-handler";
 
 type Bindings = {
   DB: D1Database;
@@ -51,14 +54,101 @@ app.use("*", async (c, next) => {
   await next();
 });
 
+app.use("/api/*", errorHandler);
+
 app.get("/", (c) => {
   return c.json({ status: "ok" });
 });
 
 app.get("/api/documents", async (c) => {
   const db = createDb(c.env.DB);
-  const documents = await db.query.document.findMany();
-  return c.json(documents);
+  const documents = createDocumentsModule(db);
+  const user = c.get("user") as { id: string } | null;
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+  const docs = await documents.list(user.id);
+  return c.json(docs);
+});
+
+app.post("/api/documents", async (c) => {
+  const db = createDb(c.env.DB);
+  const documents = createDocumentsModule(db);
+  const user = c.get("user") as { id: string } | null;
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+  const body = await c.req.json();
+  const doc = await documents.create(user.id, body.title);
+  return c.json(doc, 201);
+});
+
+app.patch("/api/documents/:id", async (c) => {
+  const db = createDb(c.env.DB);
+  const documents = createDocumentsModule(db);
+  const user = c.get("user") as { id: string } | null;
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+  const documentId = c.req.param("id");
+  const body = await c.req.json();
+  const doc = await documents.update(documentId, user.id, { title: body.title });
+  return c.json(doc);
+});
+
+app.delete("/api/documents/:id", async (c) => {
+  const db = createDb(c.env.DB);
+  const documents = createDocumentsModule(db);
+  const user = c.get("user") as { id: string } | null;
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+  const documentId = c.req.param("id");
+  await documents.delete(documentId, user.id);
+  return c.body(null, 204);
+});
+
+app.get("/api/documents/:documentId/shares", async (c) => {
+  const db = createDb(c.env.DB);
+  const shares = createSharesModule(db);
+  const user = c.get("user") as { id: string } | null;
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+  const documentId = c.req.param("documentId");
+  const sharesList = await shares.list(documentId, user.id);
+  return c.json(sharesList);
+});
+
+app.post("/api/documents/:documentId/shares", async (c) => {
+  const db = createDb(c.env.DB);
+  const shares = createSharesModule(db);
+  const user = c.get("user") as { id: string } | null;
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+  const documentId = c.req.param("documentId");
+  const body = await c.req.json();
+  const share = await shares.add(
+    documentId,
+    user.id,
+    body.userId,
+    body.permission
+  );
+  return c.json(share, 201);
+});
+
+app.delete("/api/documents/:documentId/shares/:userId", async (c) => {
+  const db = createDb(c.env.DB);
+  const shares = createSharesModule(db);
+  const user = c.get("user") as { id: string } | null;
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+  const documentId = c.req.param("documentId");
+  const targetUserId = c.req.param("userId");
+  await shares.remove(documentId, user.id, targetUserId);
+  return c.body(null, 204);
 });
 
 export type AppType = typeof app;
