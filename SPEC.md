@@ -195,3 +195,48 @@ REST endpoints served by Hono on the Workers runtime:
 - Hocuspocus v4 + `hocuspocus-do` is relatively new — monitor for issues with Durable Object hibernation
 - Better Auth with D1 adapter is the officially recommended stack for Hono + Cloudflare
 - The `@google-docs-clone/api-client` package should be framework-agnostic so it could be reused by a future mobile app
+
+## Decisions Pending
+
+The following decisions were deferred during the architecture grilling session. They are implementation-level details that are better resolved during coding.
+
+### Database Schema
+
+- **Exact column types and constraints** — Which columns are `TEXT NOT NULL`, which have defaults, which use `INTEGER` for timestamps (unix epoch vs ISO string)
+- **Indexes** — Which columns need indexes for query performance (e.g., `document.ownerId`, `document_share.documentId`)
+- **Document ID format** — UUID, nanoid, or custom slug
+- **On delete behavior** — Cascade deletes when a user or document is removed, or soft deletes
+
+### API Response Shapes
+
+- **Error response format** — `{ error: string }`, `{ message: string, code: string }`, or structured error objects
+- **Pagination** — Cursor-based or offset-based for document lists
+- **Field selection** — Whether clients can request specific fields or always get full objects
+- **Timestamp format** — Unix epoch integers, ISO 8601 strings, or both
+
+### Frontend Architecture
+
+- **State management** — React Query/TanStack Query for server state, or custom hooks with context
+- **Routing library** — React Router v7 or TanStack Router
+- **Styling approach** — Tailwind CSS, CSS modules, or styled-components
+- **Component library** — Build from scratch or use a headless UI library (Radix, shadcn/ui)
+- **Form handling** — React Hook Form, Formik, or native forms
+
+### Editor Details
+
+- **Tiptap extensions list** — Exact set of extensions to install (StarterKit, Placeholder, CharacterCount, etc.)
+- **Toolbar design** — Which buttons, grouped how, responsive behavior
+- **Slash command items** — Which blocks are available via slash commands
+- **Collaboration cursor colors** — How to assign and display colors for multiple users
+
+### Authentication
+
+- **Session duration** — How long sessions last before expiry
+- **Password policy** — Minimum length, complexity requirements
+- **Email verification** — Whether to require email verification on sign-up
+
+### Sharing
+
+- **Permission granularity** — Currently view/edit only. Future: comment permission?
+- **Share link expiry** — Whether shared links can expire (not in MVP)
+- **Maximum shares** — Any limit on how many users a document can be shared with
