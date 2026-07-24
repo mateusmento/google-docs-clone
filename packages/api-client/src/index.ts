@@ -19,33 +19,62 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return res.json();
 }
 
+function listDocuments(): Promise<Document[]> {
+  return request<Document[]>("/documents");
+}
+
+function createDocument(title: string): Promise<Document> {
+  return request<Document>("/documents", {
+    method: "POST",
+    body: JSON.stringify({ title }),
+  });
+}
+
+function updateDocument(
+  id: string,
+  data: { title: string }
+): Promise<Document> {
+  return request<Document>(`/documents/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
+function deleteDocument(id: string): Promise<void> {
+  return request<void>(`/documents/${id}`, { method: "DELETE" });
+}
+
+function listShares(documentId: string): Promise<DocumentShare[]> {
+  return request<DocumentShare[]>(`/documents/${documentId}/shares`);
+}
+
+function addShare(
+  documentId: string,
+  userId: string,
+  permission: string
+): Promise<DocumentShare> {
+  return request<DocumentShare>(`/documents/${documentId}/share`, {
+    method: "POST",
+    body: JSON.stringify({ userId, permission }),
+  });
+}
+
+function removeShare(documentId: string, userId: string): Promise<void> {
+  return request<void>(`/documents/${documentId}/share/${userId}`, {
+    method: "DELETE",
+  });
+}
+
 export const api = {
   documents: {
-    list: () => request<Document[]>("/documents"),
-    create: (title: string) =>
-      request<Document>("/documents", {
-        method: "POST",
-        body: JSON.stringify({ title }),
-      }),
-    update: (id: string, data: { title: string }) =>
-      request<Document>(`/documents/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
-      }),
-    delete: (id: string) =>
-      request<void>(`/documents/${id}`, { method: "DELETE" }),
+    list: listDocuments,
+    create: createDocument,
+    update: updateDocument,
+    delete: deleteDocument,
   },
   shares: {
-    list: (documentId: string) =>
-      request<DocumentShare[]>(`/documents/${documentId}/shares`),
-    add: (documentId: string, userId: string, permission: string) =>
-      request<DocumentShare>(`/documents/${documentId}/share`, {
-        method: "POST",
-        body: JSON.stringify({ userId, permission }),
-      }),
-    remove: (documentId: string, userId: string) =>
-      request<void>(`/documents/${documentId}/share/${userId}`, {
-        method: "DELETE",
-      }),
+    list: listShares,
+    add: addShare,
+    remove: removeShare,
   },
 };
